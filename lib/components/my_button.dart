@@ -13,7 +13,6 @@ class MyButton extends StatelessWidget {
             print("logging in");
           }
         },
-        child: Text('Login'),
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
           shape: RoundedRectangleBorder(
@@ -23,6 +22,7 @@ class MyButton extends StatelessWidget {
                         foregroundColor: Colors.blueAccent,
 
                       ),
+        child: Text('Login'),
       );
 
   }

@@ -1,7 +1,5 @@
 import 'package:camera_slider/components/pages/home_page.dart';
-import 'package:camera_slider/components/pages/login_page.dart';
 import 'package:camera_slider/components/pages/register_or_login_page.dart';
-import 'package:camera_slider/components/pages/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

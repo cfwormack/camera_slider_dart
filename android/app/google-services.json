@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "712126556649",
+    "project_id": "camera-slider",
+    "storage_bucket": "camera-slider.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712126556649:android:b3d4bb65ddfd1c23530378",
+        "android_client_info": {
+          "package_name": "com.example.camera_slider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnDhbDkBMTXm_PoRMze2FVRYeMBg6Ibwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

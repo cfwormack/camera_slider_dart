@@ -75,10 +75,10 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 238, 249, 255),
+        backgroundColor:  const Color(0xFF2b2b2b),
         appBar: AppBar(
           //title: const Text('Camera Slider App'),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor:  const Color(0xFF2b2b2b),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
             Text('Camera Slider Login', 
             style: TextStyle(fontSize: 35,
             fontWeight: FontWeight.bold,
-            color: Colors.blueAccent,
+            color: Color(0xFFf0f0f0),
             ),
             ),
             
@@ -130,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           
-                          Text("Already have an account? "),
+                          Text("Already have an account? ",style:TextStyle(color: Color(0xFFf0f0f0)),),
                           GestureDetector(
                             onTap: widget.onTap,
                             child: Text(

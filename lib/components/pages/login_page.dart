@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
-  LoginPage({super.key, this.onTap});
+  const LoginPage({super.key, this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -26,8 +26,10 @@ class _LoginPageState extends State<LoginPage> {
       email: emailController.text,
       password: passwordController.text,
     );
-    Navigator.pop(context); // Close the loading indicator
-    } on FirebaseAuthException catch (e) {
+    //if (context.mounted){
+    //  Navigator.pop(context); // Close the loading indicator
+    //}
+    } on FirebaseAuthException {
       // Show error message
       showDialog(
         context: context,
@@ -38,7 +40,9 @@ class _LoginPageState extends State<LoginPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  if(context.mounted){
+                    Navigator.pop(context);
+                  }
                 },
                 child: const Text('OK'),
               ),
@@ -54,10 +58,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 238, 249, 255),
+        backgroundColor: const Color(0xFF2b2b2b),
         appBar: AppBar(
           //title: const Text('Camera Slider App'),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Color(0xFF2b2b2b),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
             Text('Camera Slider Login', 
             style: TextStyle(fontSize: 35,
             fontWeight: FontWeight.bold,
-            color: Colors.blueAccent,
+            color:  Color(0xFFf0f0f0),
             ),
             ),
             
@@ -103,13 +107,13 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           
-                          Text("Don't have an account? "),
+                          Text("Don't have an account? ",style:TextStyle(color: Color(0xFFf0f0f0)),),
                           GestureDetector(
                             onTap: widget.onTap,
                             child: Text(
                               "Sign Up",
                               style: TextStyle(
-                                color: Colors.blueAccent,
+                                color:   Colors.blueAccent,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

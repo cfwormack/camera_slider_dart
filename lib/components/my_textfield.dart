@@ -17,12 +17,17 @@ class MyTextfield extends StatelessWidget {
                       child: TextFormField(
                         controller: controller,
                         obscureText: obscureText ?? false,
+                        style: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.white,
+                            ),
                           ),
                           labelText: labelText,
                           hintText: hintText,
+
                           prefixIcon: Icon(prefixIcon),
                         ),
                         validator: (value) {

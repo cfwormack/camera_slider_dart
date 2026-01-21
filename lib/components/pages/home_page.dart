@@ -1,10 +1,28 @@
 
+//Todo: abstract the preset widgets into their own component files
+//Todo: implement persistent storage for presets
+
+//todo: implement preset class 
+
 import 'package:camera_slider/components/my_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_window_close/flutter_window_close.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:io';
+
+
+class Preset{
+  String name;
+  double speed;
+  double x;
+  double y;
+  double z;
+
+  Preset({required this.name, required this.speed, required this.x, required this.y, required this.z});
+}
 
 List<(String,double,double,double,double)> items = [('Default Preset',0.5,0.5,0.5,0.5)];
-
 
 class HomePage extends StatefulWidget {
 
@@ -15,19 +33,91 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+    // backend socket
+    late IO.Socket socket;
+ 
+    
+     @override
+      void initState() {
+      super.initState();
+      initSocket();
+    }
+    void initSocket() {
+    // Replace with your IP address if using a physical device
+    socket = IO.io('http://localhost:5000', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': true,
+    });
+    socket.onConnect((_) => print('Connected to Backend'));
+    //socket.onDisconnect((_) => print('Disconnected from Backend'));
+    //setupWindowCloseHandler();  
+    initBackend();
+  }
+
+  // start the python backend process
+  void main() async {
+    var result = await Process.start(
+      '.venv\\Scripts\\python.exe',
+      ['c:/Users/genar/Flutter_Projects/camera_slider/camera_slider/lib/components/api/backened_socket.py'],
+      mode: ProcessStartMode.detached,
+      runInShell: true,
+    );
+      
+  }
+  
+
+  void initBackend(){
+    if (Platform.isWindows) {
+       main();
+        
+      } else if (Platform.isLinux || Platform.isMacOS) {
+        //Mac and linux implementation
+        main();
+      }
+  }
+
+  @override
+  void dispose() {
+    socket.dispose(); // Clean up connection
+    super.dispose();
+  }
+
+
+// send slider and button commands to the python backend
+ void sendData(String command,double value,bool b) {
+    b ?socket.emit('slider_move',{'value': "$command${value.toInt()}>"}) :
+           socket.emit('slider_move',{'value': "$command>"});
+  
+  }
+
+  Future<void> setupWindowCloseHandler() async {
+    FlutterWindowClose.setWindowShouldCloseHandler(() async {
+      // Perform any necessary cleanup here
+      // For example, sign out the user
+      await FirebaseAuth.instance.signOut();
+      dispose();
+      socket.onDisconnect((_) => print('Disconnected from Backend'));
+      return true; // Allow the window to close
+    });
+  }
+
+   // initial slider values  
     double speedValue = 0.5;
     double xValue = 0.5;
     double yValue = 0.5;
     double zValue = 0.5;
     List<String> presetNames = [];
-  (String,double,double,double,double) selectedItem = ('Default Preset', 0.5 ,0.5, 0.5, 0.5);
+    (String,double,double,double,double) selectedItem = ('Default Preset', 0.5 ,0.5, 0.5, 0.5);
     final presetController = TextEditingController();
 
   void signUserOut() {
     // Implement your sign-out logic here
     FirebaseAuth.instance.signOut();
-  }
+    socket.onDisconnect((_) => print('Disconnected from Backend'));
 
+  }
+ 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,27 +165,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                   ),
                 ),
-            /*
-                Container(
-                  margin: EdgeInsets.only(bottom: 30),
-                  child: Text('Adjust the sliders to control the camera slider', 
-                  style: TextStyle(fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  backgroundColor: Color(0xFF2b2b2b),
-                  color: Color(0xFFf0f0f0),
-                  ),
-                  ),
-                ),
-              */
+            
               //speed slider
-             
-              MySlider(value: speedValue, onChanged: (newValue) {setState(() => speedValue = newValue); }, label: 'Speed:'),
+              MySlider(value: speedValue, onChanged: (newValue) {setState(() => speedValue = newValue); sendData('V', speedValue*100, true); }, label: 'Speed:'),
               //slide slider
-              MySlider(value: xValue, onChanged: (newValue) {setState(() => xValue = newValue); }, label: 'Slide:  '),
+              MySlider(value: xValue, onChanged: (newValue) {setState(() => xValue = newValue); sendData('X', xValue*1000, true);}, label: 'Slide:  '),
               //pan slider
-              MySlider(value: yValue, onChanged: (newValue) {setState(() => yValue = newValue); }, label: 'Pan:    '),
+              MySlider(value: yValue, onChanged: (newValue) {setState(() => yValue = newValue); sendData('Y', yValue*180, true);}, label: 'Pan:    '),
               //tilt slider
-              MySlider(value: zValue, onChanged: (newValue) {setState(() => zValue = newValue); }, label: 'Tilt:    '),  
+              MySlider(value: zValue, onChanged: (newValue) {setState(() => zValue = newValue); sendData('Z', zValue*180 , true);} , label: 'Tilt:    '),  
               SizedBox(height: 20,),
               // display current values
                 Text('Speed: ${(speedValue * 100).toStringAsFixed(0)}%, Slide: ${(xValue * 100).toStringAsFixed(0)}, Pan: ${(yValue * 180).toStringAsFixed(0)}, Tilt: ${(zValue * 180).toStringAsFixed(0)}', 
@@ -182,10 +260,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
               
-                    // keyframe presets
              
-                      
-            
             ]
                   ),
                          
@@ -204,7 +279,6 @@ class _HomePageState extends State<HomePage> {
             child:
          Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                //crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                
@@ -262,6 +336,10 @@ class _HomePageState extends State<HomePage> {
                                 yValue = selectedItem.$4;
                                 zValue = selectedItem.$5;
                               });
+                              sendData('V', speedValue*100, true);
+                              sendData('X', xValue*100, true);
+                              sendData('Y', yValue*180, true);
+                              sendData('Z', zValue*180, true);
                             },
                           );
                         },
@@ -280,37 +358,29 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // Implement start functionality
+                        // Implement set functionality
+                        sendData('S', 0, false);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text('Start'),
+                      child: Text('Set'),
                     ),
                     SizedBox(width: 20),
                     ElevatedButton(
                       onPressed: () {
-                        // Implement stop functionality
+                        // Implement reset functionality
+                        sendData('R', 0, false);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text('Stop'),
-                    ),
-                    // Preset name input field
-                    SizedBox(width: 20),
-                   ElevatedButton(
-                      onPressed: () {
-                        // Implement reset functionality
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                      ),
                       child: Text('Reset'),
                     ),
+                   
+                   
                  
                   ],
                 ),
